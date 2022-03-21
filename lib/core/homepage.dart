@@ -26,6 +26,10 @@ class _HomePageState extends State<HomePage> {
   var sunset;
   var sunrise;
   var locationvalue;
+  var nias;
+  var arabicmonth;
+  var arabicdatenum;
+  var arabicyear;
   var location = 'dhaka';
   bool closetime = true;
   bool loading = true;
@@ -35,6 +39,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    arabicgetdate();
     getDate();
     checkexitdata();
     setState(() {
@@ -75,88 +80,90 @@ class _HomePageState extends State<HomePage> {
                                     BorderSide(color: Colors.white, width: 2))),
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                  "${banglanumber.banglanum(date.toString())} ${banglamonthname.month(month.toString())} ${banglanumber.banglanum(year.toString())}",
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: responsive_width / 45)),
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.location_on,
-                                    color: Colors.white,
-                                  ),
-                                  DropdownButton(
-                                    dropdownColor: Colors.transparent,
-                                    icon: SizedBox.shrink(),
-                                    underline: SizedBox.shrink(),
+                          child: Flexible(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                Text(
+                                    "${banglanumber.banglanum(date.toString())} ${banglamonthname.month(month.toString())} ${banglanumber.banglanum(year.toString())}",
                                     style: TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
-                                        fontSize: responsive_width / 40),
-                                    value: selectedvalue,
-                                    items: [
-                                      DropdownMenuItem(
-                                        child: Text("ঢাকা"),
-                                        value: 1,
-                                      ),
-                                      DropdownMenuItem(
-                                        child: Text("সিলেট"),
-                                        value: 2,
-                                      ),
-                                      DropdownMenuItem(
-                                        child: Text("রংপুর"),
-                                        value: 3,
-                                      ),
-                                      DropdownMenuItem(
-                                        child: Text("চট্টগ্রাম"),
-                                        value: 4,
-                                      ),
-                                      DropdownMenuItem(
-                                        child: Text("বরিশাল"),
-                                        value: 5,
-                                      ),
-                                      DropdownMenuItem(
-                                        child: Text("খুলনা"),
-                                        value: 6,
-                                      ),
-                                      DropdownMenuItem(
-                                        child: Text("রাজশাহী"),
-                                        value: 7,
-                                      ),
-                                      DropdownMenuItem(
-                                        child: Text("ময়মনসিংহ"),
-                                        value: 8,
-                                      ),
-                                    ],
-                                    onChanged: (int? value) async {
-                                      var prefer =
-                                          await SharedPreferences.getInstance();
-                                      setState(() {
-                                        selectedvalue = value!;
-                                        prefer.setInt('locationvalue', value);
-                                      });
-                                    },
-                                  ),
-
-                                  // Text("শেরপুর",
-                                  //     style: TextStyle(
-                                  //         color: Colors.white,
-                                  //         fontWeight: FontWeight.bold,
-                                  //         fontSize: responsive_width / 40)),
-                                ],
-                              ),
-                              Text(
-                                  "${banglanumber.banglanum(date.toString())} ${banglamonthname.month(month.toString())} ${banglanumber.banglanum(year.toString())}",
-                                  style: TextStyle(
+                                        fontSize: responsive_width / 45)),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.location_on,
                                       color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: responsive_width / 44)),
-                            ],
+                                    ),
+                                    DropdownButton(
+                                      dropdownColor: Colors.transparent,
+                                      icon: SizedBox.shrink(),
+                                      underline: SizedBox.shrink(),
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: responsive_width / 40),
+                                      value: selectedvalue,
+                                      items: [
+                                        DropdownMenuItem(
+                                          child: Text("ঢাকা"),
+                                          value: 1,
+                                        ),
+                                        DropdownMenuItem(
+                                          child: Text("সিলেট"),
+                                          value: 2,
+                                        ),
+                                        DropdownMenuItem(
+                                          child: Text("রংপুর"),
+                                          value: 3,
+                                        ),
+                                        DropdownMenuItem(
+                                          child: Text("চট্টগ্রাম"),
+                                          value: 4,
+                                        ),
+                                        DropdownMenuItem(
+                                          child: Text("বরিশাল"),
+                                          value: 5,
+                                        ),
+                                        DropdownMenuItem(
+                                          child: Text("খুলনা"),
+                                          value: 6,
+                                        ),
+                                        DropdownMenuItem(
+                                          child: Text("রাজশাহী"),
+                                          value: 7,
+                                        ),
+                                        DropdownMenuItem(
+                                          child: Text("ময়মনসিংহ"),
+                                          value: 8,
+                                        ),
+                                      ],
+                                      onChanged: (int? value) async {
+                                        var prefer = await SharedPreferences
+                                            .getInstance();
+                                        setState(() {
+                                          selectedvalue = value!;
+                                          prefer.setInt('locationvalue', value);
+                                        });
+                                      },
+                                    ),
+
+                                    // Text("শেরপুর",
+                                    //     style: TextStyle(
+                                    //         color: Colors.white,
+                                    //         fontWeight: FontWeight.bold,
+                                    //         fontSize: responsive_width / 40)),
+                                  ],
+                                ),
+                                Text(
+                                    "${banglanumber.banglanum(arabicdatenum.toString())}${banglanumber.banglanum(arabicmonth.toString())}${banglanumber.banglanum(arabicyear.toString())}",
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: responsive_width / 44)),
+                              ],
+                            ),
                           ),
                         )),
                   )),
@@ -1221,6 +1228,30 @@ class _HomePageState extends State<HomePage> {
       } else {
         location = 'dhaka';
         DataScraper();
+      }
+    });
+  }
+
+  arabicgetdate() async {
+    final response = await http.Client()
+        .get(Uri.parse('https://isubqo.com/islamic-calendar'));
+    var document = parser.parse(response.body);
+    setState(() {
+      var responsedata = document.getElementsByClassName('text-right')[0];
+      var arabidatedata = responsedata.text.trim().split('.');
+      arabicmonth = arabidatedata[1];
+      arabicyear = arabidatedata[2];
+      var splitdatetry = arabidatedata[0].split(':');
+      arabicdatenum = splitdatetry[1];
+
+      if (arabicmonth == " Sha'ban") {
+        arabicmonth = ' শা’বান';
+      } else if (arabicmonth == " Ramadan") {
+        arabicmonth = 'রামাজান';
+      } else if (arabicmonth == " Shawwal") {
+        arabicmonth = 'শাওয়াল';
+      } else {
+        arabicmonth = arabicmonth;
       }
     });
   }
