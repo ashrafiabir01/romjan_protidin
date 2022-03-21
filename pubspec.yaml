@@ -38,6 +38,8 @@ dependencies:
   html: ^0.15.0
   http: ^0.13.4
   flutter_countdown_timer: ^4.1.0
+  shared_preferences: ^2.0.13
+  restart_app: ^1.1.0
 
 dev_dependencies:
   flutter_test:

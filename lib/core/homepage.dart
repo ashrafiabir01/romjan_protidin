@@ -1,9 +1,11 @@
 // ignore_for_file: use_key_in_widget_constructors, prefer_const_constructors, prefer_const_literals_to_create_immutables, sized_box_for_whitespace, non_constant_identifier_names, prefer_typing_uninitialized_variables
 import 'package:flutter/material.dart';
+import 'package:restart_app/restart_app.dart';
 import 'package:romjan_protidin/core/appfunctions.dart';
 import 'package:romjan_protidin/core/customWidget/appbar.dart';
 import 'package:html/parser.dart' as parser;
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -23,23 +25,26 @@ class _HomePageState extends State<HomePage> {
   var eshatime;
   var sunset;
   var sunrise;
-
+  var locationvalue;
+  var location = 'dhaka';
   bool closetime = true;
   bool loading = true;
-  var items = [
-    'Item 1',
-    'Item 2',
-    'Item 3',
-    'Item 4',
-    'Item 5',
-  ];
-  int _value = 1;
+  int selectedvalue = 1;
   numberTranslator banglanumber = numberTranslator();
   banglamonth banglamonthname = banglamonth();
   @override
   void initState() {
     super.initState();
     getDate();
+    checkexitdata();
+    setState(() {
+      if (selectedvalue == 1) {
+        location = 'dhaka';
+      } else {
+        location = 'sherpur';
+      }
+    });
+
     DataScraper();
   }
 
@@ -93,7 +98,7 @@ class _HomePageState extends State<HomePage> {
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
                                         fontSize: responsive_width / 40),
-                                    value: _value,
+                                    value: selectedvalue,
                                     items: [
                                       DropdownMenuItem(
                                         child: Text("ঢাকা"),
@@ -129,8 +134,11 @@ class _HomePageState extends State<HomePage> {
                                       ),
                                     ],
                                     onChanged: (int? value) async {
+                                      var prefer =
+                                          await SharedPreferences.getInstance();
                                       setState(() {
-                                        _value = value!;
+                                        selectedvalue = value!;
+                                        prefer.setInt('locationvalue', value);
                                       });
                                     },
                                   ),
@@ -1116,7 +1124,7 @@ class _HomePageState extends State<HomePage> {
 
   DataScraper() async {
     final response = await http.Client().get(Uri.parse(
-      "https://isubqo.com/fasting-time/bangladesh/dhaka/dhaka",
+      "https://isubqo.com/fasting-time/bangladesh/${location.toString()}",
     ));
     var document = parser.parse(response.body);
 
@@ -1175,6 +1183,45 @@ class _HomePageState extends State<HomePage> {
           .children[8];
       var nais9 = responseString9.text.trim();
       sunset = nais9.split(' ');
+    });
+  }
+
+  checkexitdata() async {
+    var prefer = await SharedPreferences.getInstance();
+    setState(() {
+      var locationvaluefn = prefer.getInt('locationvalue')!;
+      locationvalue = locationvaluefn;
+      if (locationvaluefn == null) {
+        location = 'dhaka';
+        DataScraper();
+      } else if (locationvaluefn == 1) {
+        location = 'dhaka';
+        DataScraper();
+      } else if (locationvaluefn == 2) {
+        location = 'silhat';
+        DataScraper();
+      } else if (locationvaluefn == 3) {
+        location = 'rangpur';
+        DataScraper();
+      } else if (locationvaluefn == 4) {
+        location = 'chattagam';
+        DataScraper();
+      } else if (locationvaluefn == 5) {
+        location = 'barisal';
+        DataScraper();
+      } else if (locationvaluefn == 6) {
+        location = 'khulna';
+        DataScraper();
+      } else if (locationvaluefn == 7) {
+        location = 'rajshahi';
+        DataScraper();
+      } else if (locationvaluefn == 8) {
+        location = 'maimansingh';
+        DataScraper();
+      } else {
+        location = 'dhaka';
+        DataScraper();
+      }
     });
   }
 }
