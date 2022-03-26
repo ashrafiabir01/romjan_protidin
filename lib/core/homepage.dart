@@ -14,6 +14,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   var date;
+  bool savedata = true;
   var month;
   var year;
   var seheritime;
@@ -35,6 +36,13 @@ class _HomePageState extends State<HomePage> {
   bool closetime = true;
   bool loading = true;
   int selectedvalue = 1;
+  var iftertimehours = DateTime.now().second - 6;
+  var iftertimemin = DateTime.now().minute - 14;
+  var iftertimesec = 60 - DateTime.now().second;
+  var lefthour, leftmin, leftsec;
+  bool doubledigitsec = true;
+  bool doubledigitmin = true;
+  bool doubledigitsours = true;
   late PageController _pageController;
 
   numberTranslator banglanumber = numberTranslator();
@@ -46,6 +54,7 @@ class _HomePageState extends State<HomePage> {
     arabicgetdate();
     getDate();
     checkexitdata();
+    Customcountdown();
   }
 
   @override
@@ -356,13 +365,14 @@ class _HomePageState extends State<HomePage> {
                                               padding: const EdgeInsets.only(
                                                   top: 16),
                                               child: Flexible(
-                                                child: Text("00",
+                                                child: Text(
+                                                    "${doubledigitsours ? "0$lefthour" : lefthour}",
                                                     style: TextStyle(
                                                         fontWeight:
                                                             FontWeight.bold,
                                                         fontSize:
                                                             responsive_width /
-                                                                35)),
+                                                                29)),
                                               ),
                                             )),
                                         Expanded(
@@ -410,13 +420,14 @@ class _HomePageState extends State<HomePage> {
                                             padding:
                                                 const EdgeInsets.only(top: 16),
                                             child: Flexible(
-                                              child: Text("00",
+                                              child: Text(
+                                                  "${doubledigitmin ? "0$leftmin" : leftmin}",
                                                   style: TextStyle(
                                                       fontWeight:
                                                           FontWeight.bold,
                                                       fontSize:
                                                           responsive_width /
-                                                              35)),
+                                                              29)),
                                             ),
                                           ),
                                         ),
@@ -463,13 +474,14 @@ class _HomePageState extends State<HomePage> {
                                             padding:
                                                 const EdgeInsets.only(top: 16),
                                             child: Flexible(
-                                              child: Text('00',
+                                              child: Text(
+                                                  '${doubledigitsec ? "0$leftsec" : leftsec}',
                                                   style: TextStyle(
                                                       fontWeight:
                                                           FontWeight.bold,
                                                       fontSize:
                                                           responsive_width /
-                                                              35)),
+                                                              29)),
                                             ),
                                           ),
                                         ),
@@ -1067,12 +1079,15 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
+      // ignore: avoid_unnecessary_containers
       Container(
         child: Center(child: Text("$_selectedIndex")),
       ),
+      // ignore: avoid_unnecessary_containers
       Container(
         child: Center(child: Text("$_selectedIndex")),
       ),
+      // ignore: avoid_unnecessary_containers
       Container(
         child: Center(child: Text("$_selectedIndex")),
       ),
@@ -1251,5 +1266,42 @@ class _HomePageState extends State<HomePage> {
         arabicmonth = arabicmonth;
       }
     });
+  }
+
+  Customcountdown() async {
+    for (int i = iftertimesec; i >= 0; i--) {
+      setState(() {
+        doubledigitmin = false;
+        doubledigitsec = false;
+        doubledigitsours = false;
+        leftsec = iftertimesec;
+        leftmin = iftertimemin;
+        lefthour = iftertimehours;
+        leftsec = i;
+        if (i == 0) {
+          i = 60;
+          iftertimemin = iftertimemin - 1;
+          leftmin = iftertimemin;
+        }
+        if (leftsec.toString().length == 1) {
+          doubledigitsec = !doubledigitsec;
+        }
+        if (leftmin.toString().length == 1) {
+          doubledigitmin = !doubledigitmin;
+        }
+        if (lefthour.toString().length == 1) {
+          doubledigitsours = !doubledigitsours;
+        }
+        if (iftertimemin == 0) {
+          iftertimemin = 60;
+          iftertimehours = iftertimehours - 1;
+          lefthour = iftertimehours;
+        }
+      });
+      await Future.delayed(Duration(seconds: 1));
+      if (lefthour == 0) {
+        break;
+      }
+    }
   }
 }
