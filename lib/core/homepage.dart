@@ -1,15 +1,16 @@
-// ignore_for_file: prefer_typing_uninitialized_variables
+// ignore_for_file: prefer_typing_uninitialized_variables, non_constant_identifier_names, prefer_const_constructors, use_key_in_widget_constructors
 
+import 'dart:async';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/material.dart';
 import 'package:romjan_protidin/core/appfunctions.dart';
 import 'package:romjan_protidin/core/customWidget/appbar.dart';
 import 'package:html/parser.dart' as parser;
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:restart_app/restart_app.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
-
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -23,6 +24,7 @@ class _HomePageState extends State<HomePage> {
   late var iftertime = ['00', '00', '00'];
   late var fajartime = ['00', '00', '00'];
   late var assartime = ['00', '00', '00'];
+  int value = 0;
   late var johortime = ['00', '00', '00'];
   late var magribtime = ['00', '00', '00'];
   late var eshatime = ['00', '00', '00'];
@@ -35,8 +37,10 @@ class _HomePageState extends State<HomePage> {
   late var arabicyear = "00";
   late var location = 'dhaka';
   bool closetime = true;
+  var showdia = 0;
   bool loading = true;
   int selectedvalue = 1;
+  var tempdata = 0;
   var iftertimehours = DateTime.now().second;
   var iftertimemin = DateTime.now().minute;
   var iftertimesec = 60 - DateTime.now().second;
@@ -47,19 +51,20 @@ class _HomePageState extends State<HomePage> {
 
   numberTranslator banglanumber = numberTranslator();
   banglamonth banglamonthname = banglamonth();
-  setdatashared() async {
-    var prefer = await SharedPreferences.getInstance();
-    prefer.setInt('locationvalue', 1);
-  }
 
   @override
   void initState() {
     super.initState();
-    setdatashared();
+
     arabicgetdate();
     getDate();
     checkexitdata();
     Customcountdown();
+    Timer(Duration(seconds: 2), () {
+      if (tempdata == 0) {
+        showDalogchoice();
+      } else {}
+    });
   }
 
   @override
@@ -73,1037 +78,1172 @@ class _HomePageState extends State<HomePage> {
         body: Padding(
             padding: const EdgeInsets.all(1.0),
             child: SafeArea(
-              child: Column(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: Center(
-                        child: Container(
-                      decoration: const BoxDecoration(
-                          color: Color(0xFF647AFF),
-                          border: Border(
-                              left: BorderSide(color: Colors.white, width: 2),
-                              right:
-                                  BorderSide(color: Colors.white, width: 2))),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            Text(
-                                "${banglanumber.banglanum(date.toString())} ${banglamonthname.month(month.toString())} ${banglanumber.banglanum(year.toString())}",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: responsive_width / 45)),
-                            Row(
-                              children: [
-                                const Icon(
-                                  Icons.location_on,
-                                  color: Colors.white,
-                                ),
-                                DropdownButton(
-                                  dropdownColor: Colors.transparent,
-                                  icon: const SizedBox.shrink(),
-                                  underline: const SizedBox.shrink(),
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: responsive_width / 40),
-                                  value: selectedvalue,
-                                  items: const [
-                                    DropdownMenuItem(
-                                      child: Text("ঢাকা"),
-                                      value: 1,
-                                    ),
-                                    DropdownMenuItem(
-                                      child: Text("সিলেট"),
-                                      value: 2,
-                                    ),
-                                    DropdownMenuItem(
-                                      child: Text("রংপুর"),
-                                      value: 3,
-                                    ),
-                                    DropdownMenuItem(
-                                      child: Text("চট্টগ্রাম"),
-                                      value: 4,
-                                    ),
-                                    DropdownMenuItem(
-                                      child: Text("বরিশাল"),
-                                      value: 5,
-                                    ),
-                                    DropdownMenuItem(
-                                      child: Text("খুলনা"),
-                                      value: 6,
-                                    ),
-                                    DropdownMenuItem(
-                                      child: Text("রাজশাহী"),
-                                      value: 7,
-                                    ),
-                                    DropdownMenuItem(
-                                      child: Text("ময়মনসিংহ"),
-                                      value: 8,
-                                    ),
-                                  ],
-                                  onChanged: (int? value) async {
-                                    var prefer =
-                                        await SharedPreferences.getInstance();
-                                    setState(() {
-                                      selectedvalue = value!;
-                                      prefer.setInt('locationvalue', value);
-                                    });
-                                  },
-                                ),
+              child: loading == false
+                  ? Column(
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: Center(
+                              child: Container(
+                            decoration: const BoxDecoration(
+                                color: Color(0xFF647AFF),
+                                border: Border(
+                                    left: BorderSide(
+                                        color: Colors.white, width: 2),
+                                    right: BorderSide(
+                                        color: Colors.white, width: 2))),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: [
+                                  Text(
+                                      "${banglanumber.banglanum(date.toString())} ${banglamonthname.month(month.toString())} ${banglanumber.banglanum(year.toString())}",
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: responsive_width / 45)),
+                                  Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.location_on,
+                                        color: Colors.white,
+                                      ),
+                                      DropdownButton(
+                                        dropdownColor: Colors.transparent,
+                                        icon: const SizedBox.shrink(),
+                                        underline: const SizedBox.shrink(),
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: responsive_width / 40),
+                                        value: selectedvalue,
+                                        items: const [
+                                          DropdownMenuItem(
+                                            child: Text("ঢাকা"),
+                                            value: 1,
+                                          ),
+                                          DropdownMenuItem(
+                                            child: Text("সিলেট"),
+                                            value: 2,
+                                          ),
+                                          DropdownMenuItem(
+                                            child: Text("রংপুর"),
+                                            value: 3,
+                                          ),
+                                          DropdownMenuItem(
+                                            child: Text("চট্টগ্রাম"),
+                                            value: 4,
+                                          ),
+                                          DropdownMenuItem(
+                                            child: Text("বরিশাল"),
+                                            value: 5,
+                                          ),
+                                          DropdownMenuItem(
+                                            child: Text("খুলনা"),
+                                            value: 6,
+                                          ),
+                                          DropdownMenuItem(
+                                            child: Text("রাজশাহী"),
+                                            value: 7,
+                                          ),
+                                          DropdownMenuItem(
+                                            child: Text("ময়মনসিংহ"),
+                                            value: 8,
+                                          ),
+                                        ],
+                                        onChanged: (int? value) async {
+                                          SharedPreferences prefer;
+                                          prefer = await SharedPreferences
+                                              .getInstance();
+                                          await SharedPreferences.getInstance();
+                                          setState(() {
+                                            selectedvalue = value!;
+                                            prefer.setInt(
+                                                'locationvalue', value);
+                                            prefer.setInt('lo', 1);
+                                          });
+                                          showDialog(
+                                              context: context,
+                                              builder: (context) {
+                                                return Dialog(
+                                                  elevation: 0,
+                                                  backgroundColor: Colors.blue,
+                                                  child: ElevatedButton(
+                                                      style: ElevatedButton
+                                                          .styleFrom(
+                                                              elevation: 0),
+                                                      onPressed: () async {
+                                                        await Restart
+                                                            .restartApp();
+                                                      },
+                                                      child: SizedBox(
+                                                        width:
+                                                            responsive_width /
+                                                                5,
+                                                        child: Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .center,
+                                                          // ignore: prefer_const_literals_to_create_immutables
+                                                          children: [
+                                                            Icon(
+                                                              Icons.restart_alt,
+                                                              size:
+                                                                  responsive_width /
+                                                                      29,
+                                                            ),
+                                                            Text(
+                                                              'রিস্টার্ট অ্যাপ',
+                                                              style: TextStyle(
+                                                                  fontSize:
+                                                                      responsive_width /
+                                                                          45),
+                                                            )
+                                                          ],
+                                                        ),
+                                                      )),
+                                                );
+                                              });
+                                        },
+                                      ),
 
-                                // Text("শেরপুর",
-                                //     style: TextStyle(
-                                //         color: Colors.white,
-                                //         fontWeight: FontWeight.bold,
-                                //         fontSize: responsive_width / 40)),
-                              ],
-                            ),
-                            Text(
-                                "${banglanumber.banglanum(arabicdatenum.toString())}${banglanumber.banglanum(arabicmonth.toString())}${banglanumber.banglanum(arabicyear.toString())}",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: responsive_width / 44)),
-                          ],
-                        ),
-                      ),
-                    )),
-                  ),
-                  Expanded(
-                      flex: 5,
-                      child: Center(
-                          child: Container(
-                        width: double.infinity,
-                        height: double.infinity,
-                        decoration: const BoxDecoration(
-                            color: Color(0xFF647AFF),
-                            border: Border(
-                                left: BorderSide(color: Colors.white, width: 2),
-                                right:
-                                    BorderSide(color: Colors.white, width: 2))),
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 6, left: 6),
-                          child: Container(
-                            decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.45),
-                                borderRadius: const BorderRadius.only(
-                                    topLeft: Radius.circular(20),
-                                    topRight: Radius.circular(20))),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  flex: 50,
-                                  child: Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Expanded(
-                                        flex: 5,
-                                        child: Padding(
-                                          padding:
-                                              const EdgeInsets.only(top: 16),
-                                          child: Text(
-                                              "রাত ${banglanumber.banglanum(seheritime[1].toString())} মিনিট",
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize:
-                                                      responsive_width / 35)),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        flex: 3,
-                                        child: Container(
-                                          color: Colors.white.withOpacity(0.3),
-                                          width: responsive_width / 1,
-                                          height: 38,
-                                          child: const Padding(
-                                            padding: EdgeInsets.all(8.0),
-                                            child: Align(
-                                              alignment: Alignment.centerLeft,
-                                              child: Text("সাহরী",
-                                                  style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w400,
-                                                      color: Colors.black,
-                                                      fontSize: 17)),
-                                            ),
-                                          ),
-                                        ),
-                                      )
+                                      // Text("শেরপুর",
+                                      //     style: TextStyle(
+                                      //         color: Colors.white,
+                                      //         fontWeight: FontWeight.bold,
+                                      //         fontSize: responsive_width / 40)),
                                     ],
                                   ),
-                                ),
-                                Expanded(
-                                  flex: 1,
-                                  child: Container(
-                                      width: responsive_width / 70,
-                                      color: const Color(0xFF647AFF)),
-                                ),
-                                Expanded(
-                                  flex: 50,
-                                  child: Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Expanded(
-                                        flex: 5,
-                                        child: Padding(
-                                          padding:
-                                              const EdgeInsets.only(top: 16),
-                                          child: Text(
-                                              "সন্ধা ${banglanumber.banglanum(iftertime[1].toString())} মিনিট",
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize:
-                                                      responsive_width / 35)),
-                                        ),
-                                      ),
-                                      Expanded(
-                                        flex: 3,
-                                        child: Container(
-                                          color: Colors.white.withOpacity(0.3),
-                                          width: responsive_width / 1,
-                                          child: const Padding(
-                                            padding: EdgeInsets.all(8.0),
-                                            child: Align(
-                                              alignment: Alignment.centerLeft,
-                                              child: Text("ইফতার",
-                                                  style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w400,
-                                                      fontSize: 17)),
-                                            ),
-                                          ),
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ))),
-                  Expanded(
-                      flex: 2,
-                      child: Center(
-                          child: Container(
-                        decoration: const BoxDecoration(
-                            color: Color(0xFF647AFF),
-                            border: Border(
-                                left: BorderSide(color: Colors.white, width: 2),
-                                right:
-                                    BorderSide(color: Colors.white, width: 2))),
-                        child: SizedBox(
-                          width: double.infinity,
-                          height: double.infinity,
-                          child: Column(
-                            children: [
-                              SizedBox(
-                                height: responsive_height / 45,
+                                  Text(
+                                      "${banglanumber.banglanum(arabicdatenum.toString())}${banglanumber.banglanum(arabicmonth.toString())}${banglanumber.banglanum(arabicyear.toString())}",
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: responsive_width / 44)),
+                                ],
                               ),
-                              Expanded(
-                                  flex: 1,
-                                  child: closetime
-                                      ? Text(
-                                          'ইফাতারের সময় হতে বাকি আছে-\n\n\n',
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: responsive_width / 43),
-                                        )
-                                      : Text(
-                                          'সেহরির সময় বাকি আছে-',
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: responsive_width / 43),
-                                        ))
-                            ],
-                          ),
+                            ),
+                          )),
                         ),
-                      ))),
+                        Expanded(
+                            flex: 5,
+                            child: Center(
+                                child: Container(
+                              width: double.infinity,
+                              height: double.infinity,
+                              decoration: const BoxDecoration(
+                                  color: Color(0xFF647AFF),
+                                  border: Border(
+                                      left: BorderSide(
+                                          color: Colors.white, width: 2),
+                                      right: BorderSide(
+                                          color: Colors.white, width: 2))),
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.only(right: 6, left: 6),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.45),
+                                      borderRadius: const BorderRadius.only(
+                                          topLeft: Radius.circular(20),
+                                          topRight: Radius.circular(20))),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        flex: 50,
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Expanded(
+                                              flex: 5,
+                                              child: Padding(
+                                                padding: const EdgeInsets.only(
+                                                    top: 16),
+                                                child: Text(
+                                                    "রাত ${banglanumber.banglanum(seheritime[1].toString())} মিনিট",
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize:
+                                                            responsive_width /
+                                                                35)),
+                                              ),
+                                            ),
+                                            Expanded(
+                                              flex: 3,
+                                              child: Container(
+                                                color: Colors.white
+                                                    .withOpacity(0.3),
+                                                width: responsive_width / 1,
+                                                height: 38,
+                                                child: const Padding(
+                                                  padding: EdgeInsets.all(8.0),
+                                                  child: Align(
+                                                    alignment:
+                                                        Alignment.centerLeft,
+                                                    child: Text("সাহরী",
+                                                        style: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight.w400,
+                                                            color: Colors.black,
+                                                            fontSize: 17)),
+                                                  ),
+                                                ),
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                      Expanded(
+                                        flex: 1,
+                                        child: Container(
+                                            width: responsive_width / 70,
+                                            color: const Color(0xFF647AFF)),
+                                      ),
+                                      Expanded(
+                                        flex: 50,
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Expanded(
+                                              flex: 5,
+                                              child: Padding(
+                                                padding: const EdgeInsets.only(
+                                                    top: 16),
+                                                child: Text(
+                                                    "সন্ধা ${banglanumber.banglanum(iftertime[1].toString())} মিনিট",
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize:
+                                                            responsive_width /
+                                                                35)),
+                                              ),
+                                            ),
+                                            Expanded(
+                                              flex: 3,
+                                              child: Container(
+                                                color: Colors.white
+                                                    .withOpacity(0.3),
+                                                width: responsive_width / 1,
+                                                child: const Padding(
+                                                  padding: EdgeInsets.all(8.0),
+                                                  child: Align(
+                                                    alignment:
+                                                        Alignment.centerLeft,
+                                                    child: Text("ইফতার",
+                                                        style: TextStyle(
+                                                            fontWeight:
+                                                                FontWeight.w400,
+                                                            fontSize: 17)),
+                                                  ),
+                                                ),
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ))),
+                        Expanded(
+                            flex: 2,
+                            child: Center(
+                                child: Container(
+                              decoration: const BoxDecoration(
+                                  color: Color(0xFF647AFF),
+                                  border: Border(
+                                      left: BorderSide(
+                                          color: Colors.white, width: 2),
+                                      right: BorderSide(
+                                          color: Colors.white, width: 2))),
+                              child: SizedBox(
+                                width: double.infinity,
+                                height: double.infinity,
+                                child: Column(
+                                  children: [
+                                    SizedBox(
+                                      height: responsive_height / 45,
+                                    ),
+                                    Expanded(
+                                        flex: 1,
+                                        child: closetime
+                                            ? Text(
+                                                'ইফাতারের সময় হতে বাকি আছে-\n\n\n',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize:
+                                                        responsive_width / 43),
+                                              )
+                                            : Text(
+                                                'সেহরির সময় বাকি আছে-',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize:
+                                                        responsive_width / 43),
+                                              ))
+                                  ],
+                                ),
+                              ),
+                            ))),
 
 //
 
 //Countdown
 //
-                  Expanded(
-                      flex: 4,
-                      child: Center(
-                          child: Container(
+                        Expanded(
+                            flex: 4,
+                            child: Center(
+                                child: Container(
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xFF647AFF),
+                                    ),
+                                    child: Center(
+                                        child: Container(
+                                      width: double.infinity,
+                                      height: double.infinity,
+                                      decoration: const BoxDecoration(
+                                          color: Color(0xFF647AFF),
+                                          border: Border(
+                                              left: BorderSide(
+                                                  color: Colors.white,
+                                                  width: 2),
+                                              right: BorderSide(
+                                                  color: Colors.white,
+                                                  width: 2))),
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(
+                                            right: 6, left: 6),
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color:
+                                                Colors.white.withOpacity(0.45),
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              Expanded(
+                                                flex: 50,
+                                                child: Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    Expanded(
+                                                      flex: 5,
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .only(top: 16),
+                                                        child: Text(
+                                                            "${doubledigitsours ? "0$lefthour" : lefthour}",
+                                                            style: TextStyle(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                fontSize:
+                                                                    responsive_width /
+                                                                        29)),
+                                                      ),
+                                                    ),
+                                                    Expanded(
+                                                      flex: 3,
+                                                      child: Container(
+                                                        color: Colors.white
+                                                            .withOpacity(0.3),
+                                                        width:
+                                                            responsive_width /
+                                                                1,
+                                                        height: 38,
+                                                        child: const Padding(
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                    8.0),
+                                                            child: Align(
+                                                              alignment: Alignment
+                                                                  .centerLeft,
+                                                              child: Text(
+                                                                  "ঘন্টা",
+                                                                  style: TextStyle(
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w400,
+                                                                      color: Colors
+                                                                          .black,
+                                                                      fontSize:
+                                                                          17)),
+                                                            )),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              Expanded(
+                                                flex: 1,
+                                                child: Container(
+                                                    width:
+                                                        responsive_width / 70,
+                                                    color: const Color(
+                                                        0xFF647AFF)),
+                                              ),
+                                              Expanded(
+                                                flex: 50,
+                                                child: Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    Expanded(
+                                                      flex: 5,
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .only(top: 16),
+                                                        child: Text(
+                                                            "${doubledigitmin ? "0$leftmin" : leftmin}",
+                                                            style: TextStyle(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                fontSize:
+                                                                    responsive_width /
+                                                                        29)),
+                                                      ),
+                                                    ),
+                                                    Expanded(
+                                                      flex: 3,
+                                                      child: Container(
+                                                        color: Colors.white
+                                                            .withOpacity(0.3),
+                                                        width:
+                                                            responsive_width /
+                                                                1,
+                                                        child: const Padding(
+                                                          padding:
+                                                              EdgeInsets.all(
+                                                                  8.0),
+                                                          child: Align(
+                                                            alignment: Alignment
+                                                                .centerLeft,
+                                                            child: Text("মিনিট",
+                                                                style: TextStyle(
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w400,
+                                                                    fontSize:
+                                                                        17)),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
+                                              Expanded(
+                                                flex: 1,
+                                                child: Container(
+                                                    width:
+                                                        responsive_width / 70,
+                                                    color: const Color(
+                                                        0xFF647AFF)),
+                                              ),
+                                              Expanded(
+                                                flex: 50,
+                                                child: Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    Expanded(
+                                                      flex: 5,
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .only(top: 16),
+                                                        child: Text(
+                                                            '${doubledigitsec ? "0$leftsec" : leftsec}',
+                                                            style: TextStyle(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                fontSize:
+                                                                    responsive_width /
+                                                                        29)),
+                                                      ),
+                                                    ),
+                                                    Expanded(
+                                                      flex: 3,
+                                                      child: Container(
+                                                        color: Colors.white
+                                                            .withOpacity(0.3),
+                                                        width:
+                                                            responsive_width /
+                                                                1,
+                                                        child: const Padding(
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                    8.0),
+                                                            child: Align(
+                                                              alignment: Alignment
+                                                                  .centerLeft,
+                                                              child: Text(
+                                                                  "সেকেন্ড",
+                                                                  style: TextStyle(
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w400,
+                                                                      fontSize:
+                                                                          17)),
+                                                            )),
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ))))),
+                        //namaj
+
+                        //
+                        Expanded(
+                            flex: 2,
+                            child: Center(
+                                child: Container(
                               decoration: const BoxDecoration(
-                                color: Color(0xFF647AFF),
-                              ),
-                              child: Center(
-                                  child: Container(
+                                  color: Color(0xFF647AFF),
+                                  border: Border(
+                                      left: BorderSide(
+                                          color: Colors.white, width: 2),
+                                      right: BorderSide(
+                                          color: Colors.white, width: 2))),
+                              child: SizedBox(
                                 width: double.infinity,
                                 height: double.infinity,
-                                decoration: const BoxDecoration(
-                                    color: Color(0xFF647AFF),
-                                    border: Border(
-                                        left: BorderSide(
-                                            color: Colors.white, width: 2),
-                                        right: BorderSide(
-                                            color: Colors.white, width: 2))),
-                                child: Padding(
-                                  padding:
-                                      const EdgeInsets.only(right: 6, left: 6),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.45),
+                                child: Column(
+                                  children: [
+                                    Expanded(
+                                      flex: 1,
+                                      child: Container(
+                                          width: responsive_width / 70,
+                                          color: const Color(0xFF647AFF)),
                                     ),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          flex: 50,
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
+                                    Expanded(
+                                        flex: 1,
+                                        child: Text(
+                                          'আজকের নামাজের সময়সূচী',
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: responsive_width / 43),
+                                        ))
+                                  ],
+                                ),
+                              ),
+                            ))),
+                        Expanded(
+                            flex: 13,
+                            child: Center(
+                                child: Container(
+                              decoration: const BoxDecoration(
+                                color: Color(0xFF647AFF),
+                                border: Border(
+                                    bottom: BorderSide(
+                                        color: Colors.white, width: 2),
+                                    left: BorderSide(
+                                        color: Colors.white, width: 2),
+                                    right: BorderSide(
+                                        color: Colors.white, width: 2)),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(6.0),
+                                child: SizedBox(
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                  child: Column(
+                                    children: [
+                                      Expanded(
+                                          flex: 1,
+                                          child: Row(
                                             children: [
                                               Expanded(
-                                                flex: 5,
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          top: 16),
-                                                  child: Text(
-                                                      "${doubledigitsours ? "0$lefthour" : lefthour}",
-                                                      style: TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          fontSize:
-                                                              responsive_width /
-                                                                  29)),
-                                                ),
-                                              ),
-                                              Expanded(
-                                                flex: 3,
-                                                child: Container(
-                                                  color: Colors.white
-                                                      .withOpacity(0.3),
-                                                  width: responsive_width / 1,
-                                                  height: 38,
-                                                  child: const Padding(
-                                                      padding:
-                                                          EdgeInsets.all(8.0),
-                                                      child: Align(
-                                                        alignment: Alignment
-                                                            .centerLeft,
-                                                        child: Text("ঘন্টা",
-                                                            style: TextStyle(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w400,
+                                                  flex: 1,
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                        color: Colors.white
+                                                            .withOpacity(0.6),
+                                                        border: Border(
+                                                            right: BorderSide(
                                                                 color: Colors
-                                                                    .black,
-                                                                fontSize: 17)),
-                                                      )),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        Expanded(
-                                          flex: 1,
-                                          child: Container(
-                                              width: responsive_width / 70,
-                                              color: const Color(0xFF647AFF)),
-                                        ),
-                                        Expanded(
-                                          flex: 50,
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Expanded(
-                                                flex: 5,
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          top: 16),
-                                                  child: Text(
-                                                      "${doubledigitmin ? "0$leftmin" : leftmin}",
-                                                      style: TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          fontSize:
-                                                              responsive_width /
-                                                                  29)),
-                                                ),
-                                              ),
-                                              Expanded(
-                                                flex: 3,
-                                                child: Container(
-                                                  color: Colors.white
-                                                      .withOpacity(0.3),
-                                                  width: responsive_width / 1,
-                                                  child: const Padding(
-                                                    padding:
-                                                        EdgeInsets.all(8.0),
-                                                    child: Align(
-                                                      alignment:
-                                                          Alignment.centerLeft,
-                                                      child: Text("মিনিট",
-                                                          style: TextStyle(
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w400,
-                                                              fontSize: 17)),
+                                                                    .black
+                                                                    .withOpacity(
+                                                                        .3)))),
+                                                    child: SizedBox(
+                                                      height: double.infinity,
+                                                      width: double.infinity,
+                                                      child: Center(
+                                                          child: Text("ফজর",
+                                                              style: TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
+                                                                  fontSize:
+                                                                      responsive_width /
+                                                                          47))),
                                                     ),
-                                                  ),
-                                                ),
-                                              )
+                                                  )),
+                                              Expanded(
+                                                  flex: 1,
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                        color: Colors.white
+                                                            .withOpacity(0.6),
+                                                        border: Border(
+                                                            right: BorderSide(
+                                                                color: Colors
+                                                                    .black
+                                                                    .withOpacity(
+                                                                        .3)))),
+                                                    child: SizedBox(
+                                                      height: double.infinity,
+                                                      width: double.infinity,
+                                                      child: Center(
+                                                          child: Text(
+                                                              "${banglanumber.banglanum(fajartime[1].toString())} পূর্বাহ্ণ",
+                                                              style: TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
+                                                                  fontSize:
+                                                                      responsive_width /
+                                                                          47))),
+                                                    ),
+                                                  )),
+                                              Expanded(
+                                                  flex: 1,
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.white
+                                                          .withOpacity(0.6),
+                                                    ),
+                                                    child: SizedBox(
+                                                      height: double.infinity,
+                                                      width: double.infinity,
+                                                      child: Center(
+                                                          child: Text("فجر",
+                                                              style: TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
+                                                                  fontSize:
+                                                                      responsive_width /
+                                                                          40))),
+                                                    ),
+                                                  )),
                                             ],
-                                          ),
-                                        ),
-                                        Expanded(
+                                          )),
+                                      Expanded(
                                           flex: 1,
-                                          child: Container(
-                                              width: responsive_width / 70,
-                                              color: const Color(0xFF647AFF)),
-                                        ),
-                                        Expanded(
-                                          flex: 50,
-                                          child: Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
+                                          child: Row(
                                             children: [
                                               Expanded(
-                                                flex: 5,
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.only(
-                                                          top: 16),
-                                                  child: Text(
-                                                      '${doubledigitsec ? "0$leftsec" : leftsec}',
-                                                      style: TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          fontSize:
-                                                              responsive_width /
-                                                                  29)),
-                                                ),
-                                              ),
+                                                  flex: 1,
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                        color: Colors.white
+                                                            .withOpacity(0.3),
+                                                        border: Border(
+                                                            right: BorderSide(
+                                                                color: Colors
+                                                                    .black
+                                                                    .withOpacity(
+                                                                        .3)))),
+                                                    child: SizedBox(
+                                                      height: double.infinity,
+                                                      width: double.infinity,
+                                                      child: Center(
+                                                          child: Text("জোহর",
+                                                              style: TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
+                                                                  fontSize:
+                                                                      responsive_width /
+                                                                          47))),
+                                                    ),
+                                                  )),
                                               Expanded(
-                                                flex: 3,
-                                                child: Container(
-                                                  color: Colors.white
-                                                      .withOpacity(0.3),
-                                                  width: responsive_width / 1,
-                                                  child: const Padding(
-                                                      padding:
-                                                          EdgeInsets.all(8.0),
-                                                      child: Align(
-                                                        alignment: Alignment
-                                                            .centerLeft,
-                                                        child: Text("সেকেন্ড",
-                                                            style: TextStyle(
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w400,
-                                                                fontSize: 17)),
-                                                      )),
-                                                ),
-                                              )
+                                                  flex: 1,
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                        color: Colors.white
+                                                            .withOpacity(0.3),
+                                                        border: Border(
+                                                            right: BorderSide(
+                                                                color: Colors
+                                                                    .black
+                                                                    .withOpacity(
+                                                                        .3)))),
+                                                    child: SizedBox(
+                                                      height: double.infinity,
+                                                      width: double.infinity,
+                                                      child: Center(
+                                                          child: Text(
+                                                              "${banglanumber.banglanum(johortime[1].toString())} অপরাহ্ণ",
+                                                              style: TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
+                                                                  fontSize:
+                                                                      responsive_width /
+                                                                          47))),
+                                                    ),
+                                                  )),
+                                              Expanded(
+                                                  flex: 1,
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.white
+                                                          .withOpacity(0.3),
+                                                    ),
+                                                    child: SizedBox(
+                                                      height: double.infinity,
+                                                      width: double.infinity,
+                                                      child: Center(
+                                                          child: Text("ظهر",
+                                                              style: TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
+                                                                  fontSize:
+                                                                      responsive_width /
+                                                                          40))),
+                                                    ),
+                                                  )),
                                             ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                          )),
+                                      Expanded(
+                                          flex: 1,
+                                          child: Row(
+                                            children: [
+                                              Expanded(
+                                                  flex: 1,
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                        color: Colors.white
+                                                            .withOpacity(0.6),
+                                                        border: Border(
+                                                            right: BorderSide(
+                                                                color: Colors
+                                                                    .black
+                                                                    .withOpacity(
+                                                                        .3)))),
+                                                    child: SizedBox(
+                                                      height: double.infinity,
+                                                      width: double.infinity,
+                                                      child: Center(
+                                                          child: Text("আসর",
+                                                              style: TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
+                                                                  fontSize:
+                                                                      responsive_width /
+                                                                          47))),
+                                                    ),
+                                                  )),
+                                              Expanded(
+                                                  flex: 1,
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                        color: Colors.white
+                                                            .withOpacity(0.6),
+                                                        border: Border(
+                                                            right: BorderSide(
+                                                                color: Colors
+                                                                    .black
+                                                                    .withOpacity(
+                                                                        .3)))),
+                                                    child: SizedBox(
+                                                      height: double.infinity,
+                                                      width: double.infinity,
+                                                      child: Center(
+                                                          child: Text(
+                                                              "${banglanumber.banglanum(assartime[1].toString())} অপরাহ্ণ",
+                                                              style: TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
+                                                                  fontSize:
+                                                                      responsive_width /
+                                                                          47))),
+                                                    ),
+                                                  )),
+                                              Expanded(
+                                                  flex: 1,
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.white
+                                                          .withOpacity(0.6),
+                                                    ),
+                                                    child: SizedBox(
+                                                      height: double.infinity,
+                                                      width: double.infinity,
+                                                      child: Center(
+                                                          child: Text("عصر",
+                                                              style: TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
+                                                                  fontSize:
+                                                                      responsive_width /
+                                                                          40))),
+                                                    ),
+                                                  )),
+                                            ],
+                                          )),
+                                      Expanded(
+                                          flex: 1,
+                                          child: Row(
+                                            children: [
+                                              Expanded(
+                                                  flex: 1,
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                        color: Colors.white
+                                                            .withOpacity(0.3),
+                                                        border: Border(
+                                                            right: BorderSide(
+                                                                color: Colors
+                                                                    .black
+                                                                    .withOpacity(
+                                                                        .3)))),
+                                                    child: SizedBox(
+                                                      height: double.infinity,
+                                                      width: double.infinity,
+                                                      child: Center(
+                                                          child: Text("মাগরিব",
+                                                              style: TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
+                                                                  fontSize:
+                                                                      responsive_width /
+                                                                          47))),
+                                                    ),
+                                                  )),
+                                              Expanded(
+                                                  flex: 1,
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                        color: Colors.white
+                                                            .withOpacity(0.3),
+                                                        border: Border(
+                                                            right: BorderSide(
+                                                                color: Colors
+                                                                    .black
+                                                                    .withOpacity(
+                                                                        .3)))),
+                                                    child: SizedBox(
+                                                      height: double.infinity,
+                                                      width: double.infinity,
+                                                      child: Center(
+                                                          child: Text(
+                                                              "${banglanumber.banglanum(iftertime[1].toString())} অপরাহ্ণ",
+                                                              style: TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
+                                                                  fontSize:
+                                                                      responsive_width /
+                                                                          47))),
+                                                    ),
+                                                  )),
+                                              Expanded(
+                                                  flex: 1,
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.white
+                                                          .withOpacity(0.3),
+                                                    ),
+                                                    child: SizedBox(
+                                                      height: double.infinity,
+                                                      width: double.infinity,
+                                                      child: Center(
+                                                          child: Text("مغرب",
+                                                              style: TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
+                                                                  fontSize:
+                                                                      responsive_width /
+                                                                          40))),
+                                                    ),
+                                                  )),
+                                            ],
+                                          )),
+                                      Expanded(
+                                          flex: 1,
+                                          child: Row(
+                                            children: [
+                                              Expanded(
+                                                  flex: 1,
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                        color: Colors.white
+                                                            .withOpacity(0.6),
+                                                        border: Border(
+                                                            right: BorderSide(
+                                                                color: Colors
+                                                                    .black
+                                                                    .withOpacity(
+                                                                        .3)))),
+                                                    child: SizedBox(
+                                                      height: double.infinity,
+                                                      width: double.infinity,
+                                                      child: Center(
+                                                          child: Text("ইশা",
+                                                              style: TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
+                                                                  fontSize:
+                                                                      responsive_width /
+                                                                          47))),
+                                                    ),
+                                                  )),
+                                              Expanded(
+                                                  flex: 1,
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                        color: Colors.white
+                                                            .withOpacity(0.6),
+                                                        border: Border(
+                                                            right: BorderSide(
+                                                                color: Colors
+                                                                    .black
+                                                                    .withOpacity(
+                                                                        .3)))),
+                                                    child: SizedBox(
+                                                      height: double.infinity,
+                                                      width: double.infinity,
+                                                      child: Center(
+                                                          child: Text(
+                                                              "${banglanumber.banglanum(eshatime[1].toString())} অপরাহ্ণ",
+                                                              style: TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
+                                                                  fontSize:
+                                                                      responsive_width /
+                                                                          47))),
+                                                    ),
+                                                  )),
+                                              Expanded(
+                                                  flex: 1,
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.white
+                                                          .withOpacity(0.6),
+                                                    ),
+                                                    child: SizedBox(
+                                                      height: double.infinity,
+                                                      width: double.infinity,
+                                                      child: Center(
+                                                          child: Text("عشاء",
+                                                              style: TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
+                                                                  fontSize:
+                                                                      responsive_width /
+                                                                          40))),
+                                                    ),
+                                                  )),
+                                            ],
+                                          )),
+                                      Expanded(
+                                          flex: 1,
+                                          child: Row(
+                                            children: [
+                                              Expanded(
+                                                  flex: 1,
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                        color: Colors.white
+                                                            .withOpacity(0.3),
+                                                        border: Border(
+                                                            right: BorderSide(
+                                                                color: Colors
+                                                                    .black
+                                                                    .withOpacity(
+                                                                        .3)))),
+                                                    child: SizedBox(
+                                                      height: double.infinity,
+                                                      width: double.infinity,
+                                                      child: Center(
+                                                          child: Text(
+                                                              "সূর্যোদয়",
+                                                              style: TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
+                                                                  fontSize:
+                                                                      responsive_width /
+                                                                          47))),
+                                                    ),
+                                                  )),
+                                              Expanded(
+                                                  flex: 1,
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                        color: Colors.white
+                                                            .withOpacity(0.3),
+                                                        border: Border(
+                                                            right: BorderSide(
+                                                                color: Colors
+                                                                    .black
+                                                                    .withOpacity(
+                                                                        .3)))),
+                                                    child: SizedBox(
+                                                      height: double.infinity,
+                                                      width: double.infinity,
+                                                      child: Center(
+                                                          child: Text(
+                                                              "${banglanumber.banglanum(seheritime[1].toString())} পূর্বাহ্ণ",
+                                                              style: TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
+                                                                  fontSize:
+                                                                      responsive_width /
+                                                                          47))),
+                                                    ),
+                                                  )),
+                                              Expanded(
+                                                  flex: 1,
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.white
+                                                          .withOpacity(0.3),
+                                                    ),
+                                                    child: SizedBox(
+                                                      height: double.infinity,
+                                                      width: double.infinity,
+                                                      child: Center(
+                                                          child: Text("طلوع",
+                                                              style: TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
+                                                                  fontSize:
+                                                                      responsive_width /
+                                                                          40))),
+                                                    ),
+                                                  )),
+                                            ],
+                                          )),
+                                      Expanded(
+                                          flex: 1,
+                                          child: Row(
+                                            children: [
+                                              Expanded(
+                                                  flex: 1,
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                        color: Colors.white
+                                                            .withOpacity(0.6),
+                                                        border: Border(
+                                                            right: BorderSide(
+                                                                color: Colors
+                                                                    .black
+                                                                    .withOpacity(
+                                                                        .3)))),
+                                                    child: SizedBox(
+                                                      height: double.infinity,
+                                                      width: double.infinity,
+                                                      child: Center(
+                                                          child: Text(
+                                                              "সূর্যাস্ত",
+                                                              style: TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
+                                                                  fontSize:
+                                                                      responsive_width /
+                                                                          47))),
+                                                    ),
+                                                  )),
+                                              Expanded(
+                                                  flex: 1,
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                        color: Colors.white
+                                                            .withOpacity(0.6),
+                                                        border: Border(
+                                                            right: BorderSide(
+                                                                color: Colors
+                                                                    .black
+                                                                    .withOpacity(
+                                                                        .3)))),
+                                                    child: SizedBox(
+                                                      height: double.infinity,
+                                                      width: double.infinity,
+                                                      child: Center(
+                                                          child: Text(
+                                                              "${banglanumber.banglanum(sunset[1].toString())} অপরাহ্ণ",
+                                                              style: TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
+                                                                  fontSize:
+                                                                      responsive_width /
+                                                                          47))),
+                                                    ),
+                                                  )),
+                                              Expanded(
+                                                  flex: 1,
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.white
+                                                          .withOpacity(0.6),
+                                                    ),
+                                                    child: SizedBox(
+                                                      height: double.infinity,
+                                                      width: double.infinity,
+                                                      child: Center(
+                                                          child: Text("غروب",
+                                                              style: TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w700,
+                                                                  fontSize:
+                                                                      responsive_width /
+                                                                          40))),
+                                                    ),
+                                                  )),
+                                            ],
+                                          )),
+                                    ],
                                   ),
                                 ),
-                              ))))),
-                  //namaj
-
-                  //
-                  Expanded(
-                      flex: 2,
-                      child: Center(
-                          child: Container(
-                        decoration: const BoxDecoration(
-                            color: Color(0xFF647AFF),
-                            border: Border(
-                                left: BorderSide(color: Colors.white, width: 2),
-                                right:
-                                    BorderSide(color: Colors.white, width: 2))),
-                        child: SizedBox(
-                          width: double.infinity,
-                          height: double.infinity,
-                          child: Column(
-                            children: [
-                              Expanded(
-                                flex: 1,
-                                child: Container(
-                                    width: responsive_width / 70,
-                                    color: const Color(0xFF647AFF)),
                               ),
-                              Expanded(
-                                  flex: 1,
-                                  child: Text(
-                                    'আজকের নামাজের সময়সূচী',
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: responsive_width / 43),
-                                  ))
-                            ],
-                          ),
-                        ),
-                      ))),
-                  Expanded(
-                      flex: 13,
-                      child: Center(
-                          child: Container(
-                        decoration: const BoxDecoration(
-                          color: Color(0xFF647AFF),
-                          border: Border(
-                              left: BorderSide(color: Colors.white, width: 2),
-                              right: BorderSide(color: Colors.white, width: 2)),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(6.0),
-                          child: SizedBox(
-                            width: double.infinity,
-                            height: double.infinity,
-                            child: Column(
-                              children: [
-                                Expanded(
-                                    flex: 1,
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                            flex: 1,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                  color: Colors.white
-                                                      .withOpacity(0.6),
-                                                  border: Border(
-                                                      right: BorderSide(
-                                                          color: Colors.black
-                                                              .withOpacity(
-                                                                  .3)))),
-                                              child: SizedBox(
-                                                height: double.infinity,
-                                                width: double.infinity,
-                                                child: Center(
-                                                    child: Text("ফজর",
-                                                        style: TextStyle(
-                                                            fontWeight:
-                                                                FontWeight.w700,
-                                                            fontSize:
-                                                                responsive_width /
-                                                                    47))),
-                                              ),
-                                            )),
-                                        Expanded(
-                                            flex: 1,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                  color: Colors.white
-                                                      .withOpacity(0.6),
-                                                  border: Border(
-                                                      right: BorderSide(
-                                                          color: Colors.black
-                                                              .withOpacity(
-                                                                  .3)))),
-                                              child: SizedBox(
-                                                height: double.infinity,
-                                                width: double.infinity,
-                                                child: Center(
-                                                    child: Text(
-                                                        "${banglanumber.banglanum(fajartime[1].toString())} পূর্বাহ্ণ",
-                                                        style: TextStyle(
-                                                            fontWeight:
-                                                                FontWeight.w700,
-                                                            fontSize:
-                                                                responsive_width /
-                                                                    47))),
-                                              ),
-                                            )),
-                                        Expanded(
-                                            flex: 1,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                color: Colors.white
-                                                    .withOpacity(0.6),
-                                              ),
-                                              child: SizedBox(
-                                                height: double.infinity,
-                                                width: double.infinity,
-                                                child: Center(
-                                                    child: Text("فجر",
-                                                        style: TextStyle(
-                                                            fontWeight:
-                                                                FontWeight.w700,
-                                                            fontSize:
-                                                                responsive_width /
-                                                                    40))),
-                                              ),
-                                            )),
-                                      ],
-                                    )),
-                                Expanded(
-                                    flex: 1,
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                            flex: 1,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                  color: Colors.white
-                                                      .withOpacity(0.3),
-                                                  border: Border(
-                                                      right: BorderSide(
-                                                          color: Colors.black
-                                                              .withOpacity(
-                                                                  .3)))),
-                                              child: SizedBox(
-                                                height: double.infinity,
-                                                width: double.infinity,
-                                                child: Center(
-                                                    child: Text("জোহর",
-                                                        style: TextStyle(
-                                                            fontWeight:
-                                                                FontWeight.w700,
-                                                            fontSize:
-                                                                responsive_width /
-                                                                    47))),
-                                              ),
-                                            )),
-                                        Expanded(
-                                            flex: 1,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                  color: Colors.white
-                                                      .withOpacity(0.3),
-                                                  border: Border(
-                                                      right: BorderSide(
-                                                          color: Colors.black
-                                                              .withOpacity(
-                                                                  .3)))),
-                                              child: SizedBox(
-                                                height: double.infinity,
-                                                width: double.infinity,
-                                                child: Center(
-                                                    child: Text(
-                                                        "${banglanumber.banglanum(johortime[1].toString())} অপরাহ্ণ",
-                                                        style: TextStyle(
-                                                            fontWeight:
-                                                                FontWeight.w700,
-                                                            fontSize:
-                                                                responsive_width /
-                                                                    47))),
-                                              ),
-                                            )),
-                                        Expanded(
-                                            flex: 1,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                color: Colors.white
-                                                    .withOpacity(0.3),
-                                              ),
-                                              child: SizedBox(
-                                                height: double.infinity,
-                                                width: double.infinity,
-                                                child: Center(
-                                                    child: Text("ظهر",
-                                                        style: TextStyle(
-                                                            fontWeight:
-                                                                FontWeight.w700,
-                                                            fontSize:
-                                                                responsive_width /
-                                                                    40))),
-                                              ),
-                                            )),
-                                      ],
-                                    )),
-                                Expanded(
-                                    flex: 1,
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                            flex: 1,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                  color: Colors.white
-                                                      .withOpacity(0.6),
-                                                  border: Border(
-                                                      right: BorderSide(
-                                                          color: Colors.black
-                                                              .withOpacity(
-                                                                  .3)))),
-                                              child: SizedBox(
-                                                height: double.infinity,
-                                                width: double.infinity,
-                                                child: Center(
-                                                    child: Text("আসর",
-                                                        style: TextStyle(
-                                                            fontWeight:
-                                                                FontWeight.w700,
-                                                            fontSize:
-                                                                responsive_width /
-                                                                    47))),
-                                              ),
-                                            )),
-                                        Expanded(
-                                            flex: 1,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                  color: Colors.white
-                                                      .withOpacity(0.6),
-                                                  border: Border(
-                                                      right: BorderSide(
-                                                          color: Colors.black
-                                                              .withOpacity(
-                                                                  .3)))),
-                                              child: SizedBox(
-                                                height: double.infinity,
-                                                width: double.infinity,
-                                                child: Center(
-                                                    child: Text(
-                                                        "${banglanumber.banglanum(assartime[1].toString())} অপরাহ্ণ",
-                                                        style: TextStyle(
-                                                            fontWeight:
-                                                                FontWeight.w700,
-                                                            fontSize:
-                                                                responsive_width /
-                                                                    47))),
-                                              ),
-                                            )),
-                                        Expanded(
-                                            flex: 1,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                color: Colors.white
-                                                    .withOpacity(0.6),
-                                              ),
-                                              child: SizedBox(
-                                                height: double.infinity,
-                                                width: double.infinity,
-                                                child: Center(
-                                                    child: Text("عصر",
-                                                        style: TextStyle(
-                                                            fontWeight:
-                                                                FontWeight.w700,
-                                                            fontSize:
-                                                                responsive_width /
-                                                                    40))),
-                                              ),
-                                            )),
-                                      ],
-                                    )),
-                                Expanded(
-                                    flex: 1,
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                            flex: 1,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                  color: Colors.white
-                                                      .withOpacity(0.3),
-                                                  border: Border(
-                                                      right: BorderSide(
-                                                          color: Colors.black
-                                                              .withOpacity(
-                                                                  .3)))),
-                                              child: SizedBox(
-                                                height: double.infinity,
-                                                width: double.infinity,
-                                                child: Center(
-                                                    child: Text("মাগরিব",
-                                                        style: TextStyle(
-                                                            fontWeight:
-                                                                FontWeight.w700,
-                                                            fontSize:
-                                                                responsive_width /
-                                                                    47))),
-                                              ),
-                                            )),
-                                        Expanded(
-                                            flex: 1,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                  color: Colors.white
-                                                      .withOpacity(0.3),
-                                                  border: Border(
-                                                      right: BorderSide(
-                                                          color: Colors.black
-                                                              .withOpacity(
-                                                                  .3)))),
-                                              child: SizedBox(
-                                                height: double.infinity,
-                                                width: double.infinity,
-                                                child: Center(
-                                                    child: Text(
-                                                        "${banglanumber.banglanum(iftertime[1].toString())} অপরাহ্ণ",
-                                                        style: TextStyle(
-                                                            fontWeight:
-                                                                FontWeight.w700,
-                                                            fontSize:
-                                                                responsive_width /
-                                                                    47))),
-                                              ),
-                                            )),
-                                        Expanded(
-                                            flex: 1,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                color: Colors.white
-                                                    .withOpacity(0.3),
-                                              ),
-                                              child: SizedBox(
-                                                height: double.infinity,
-                                                width: double.infinity,
-                                                child: Center(
-                                                    child: Text("مغرب",
-                                                        style: TextStyle(
-                                                            fontWeight:
-                                                                FontWeight.w700,
-                                                            fontSize:
-                                                                responsive_width /
-                                                                    40))),
-                                              ),
-                                            )),
-                                      ],
-                                    )),
-                                Expanded(
-                                    flex: 1,
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                            flex: 1,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                  color: Colors.white
-                                                      .withOpacity(0.6),
-                                                  border: Border(
-                                                      right: BorderSide(
-                                                          color: Colors.black
-                                                              .withOpacity(
-                                                                  .3)))),
-                                              child: SizedBox(
-                                                height: double.infinity,
-                                                width: double.infinity,
-                                                child: Center(
-                                                    child: Text("ইশা",
-                                                        style: TextStyle(
-                                                            fontWeight:
-                                                                FontWeight.w700,
-                                                            fontSize:
-                                                                responsive_width /
-                                                                    47))),
-                                              ),
-                                            )),
-                                        Expanded(
-                                            flex: 1,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                  color: Colors.white
-                                                      .withOpacity(0.6),
-                                                  border: Border(
-                                                      right: BorderSide(
-                                                          color: Colors.black
-                                                              .withOpacity(
-                                                                  .3)))),
-                                              child: SizedBox(
-                                                height: double.infinity,
-                                                width: double.infinity,
-                                                child: Center(
-                                                    child: Text(
-                                                        "${banglanumber.banglanum(eshatime[1].toString())} অপরাহ্ণ",
-                                                        style: TextStyle(
-                                                            fontWeight:
-                                                                FontWeight.w700,
-                                                            fontSize:
-                                                                responsive_width /
-                                                                    47))),
-                                              ),
-                                            )),
-                                        Expanded(
-                                            flex: 1,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                color: Colors.white
-                                                    .withOpacity(0.6),
-                                              ),
-                                              child: SizedBox(
-                                                height: double.infinity,
-                                                width: double.infinity,
-                                                child: Center(
-                                                    child: Text("عشاء",
-                                                        style: TextStyle(
-                                                            fontWeight:
-                                                                FontWeight.w700,
-                                                            fontSize:
-                                                                responsive_width /
-                                                                    40))),
-                                              ),
-                                            )),
-                                      ],
-                                    )),
-                                Expanded(
-                                    flex: 1,
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                            flex: 1,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                  color: Colors.white
-                                                      .withOpacity(0.3),
-                                                  border: Border(
-                                                      right: BorderSide(
-                                                          color: Colors.black
-                                                              .withOpacity(
-                                                                  .3)))),
-                                              child: SizedBox(
-                                                height: double.infinity,
-                                                width: double.infinity,
-                                                child: Center(
-                                                    child: Text("সূর্যোদয়",
-                                                        style: TextStyle(
-                                                            fontWeight:
-                                                                FontWeight.w700,
-                                                            fontSize:
-                                                                responsive_width /
-                                                                    47))),
-                                              ),
-                                            )),
-                                        Expanded(
-                                            flex: 1,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                  color: Colors.white
-                                                      .withOpacity(0.3),
-                                                  border: Border(
-                                                      right: BorderSide(
-                                                          color: Colors.black
-                                                              .withOpacity(
-                                                                  .3)))),
-                                              child: SizedBox(
-                                                height: double.infinity,
-                                                width: double.infinity,
-                                                child: Center(
-                                                    child: Text(
-                                                        "${banglanumber.banglanum(seheritime[1].toString())} পূর্বাহ্ণ",
-                                                        style: TextStyle(
-                                                            fontWeight:
-                                                                FontWeight.w700,
-                                                            fontSize:
-                                                                responsive_width /
-                                                                    47))),
-                                              ),
-                                            )),
-                                        Expanded(
-                                            flex: 1,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                color: Colors.white
-                                                    .withOpacity(0.3),
-                                              ),
-                                              child: SizedBox(
-                                                height: double.infinity,
-                                                width: double.infinity,
-                                                child: Center(
-                                                    child: Text("طلوع",
-                                                        style: TextStyle(
-                                                            fontWeight:
-                                                                FontWeight.w700,
-                                                            fontSize:
-                                                                responsive_width /
-                                                                    40))),
-                                              ),
-                                            )),
-                                      ],
-                                    )),
-                                Expanded(
-                                    flex: 1,
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                            flex: 1,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                  color: Colors.white
-                                                      .withOpacity(0.6),
-                                                  border: Border(
-                                                      right: BorderSide(
-                                                          color: Colors.black
-                                                              .withOpacity(
-                                                                  .3)))),
-                                              child: SizedBox(
-                                                height: double.infinity,
-                                                width: double.infinity,
-                                                child: Center(
-                                                    child: Text("সূর্যাস্ত",
-                                                        style: TextStyle(
-                                                            fontWeight:
-                                                                FontWeight.w700,
-                                                            fontSize:
-                                                                responsive_width /
-                                                                    47))),
-                                              ),
-                                            )),
-                                        Expanded(
-                                            flex: 1,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                  color: Colors.white
-                                                      .withOpacity(0.6),
-                                                  border: Border(
-                                                      right: BorderSide(
-                                                          color: Colors.black
-                                                              .withOpacity(
-                                                                  .3)))),
-                                              child: SizedBox(
-                                                height: double.infinity,
-                                                width: double.infinity,
-                                                child: Center(
-                                                    child: Text(
-                                                        "${banglanumber.banglanum(sunset[1].toString())} অপরাহ্ণ",
-                                                        style: TextStyle(
-                                                            fontWeight:
-                                                                FontWeight.w700,
-                                                            fontSize:
-                                                                responsive_width /
-                                                                    47))),
-                                              ),
-                                            )),
-                                        Expanded(
-                                            flex: 1,
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                color: Colors.white
-                                                    .withOpacity(0.6),
-                                              ),
-                                              child: SizedBox(
-                                                height: double.infinity,
-                                                width: double.infinity,
-                                                child: Center(
-                                                    child: Text("غروب",
-                                                        style: TextStyle(
-                                                            fontWeight:
-                                                                FontWeight.w700,
-                                                            fontSize:
-                                                                responsive_width /
-                                                                    40))),
-                                              ),
-                                            )),
-                                      ],
-                                    )),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ))),
-                  Expanded(
-                    flex: 3,
-                    child: Container(
-                      decoration: const BoxDecoration(
-                          color: Color(0xFF647AFF),
+                            ))),
+                      ],
+                    )
+                  : Container(
+                      height: double.infinity,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
                           border: Border(
                               bottom: BorderSide(color: Colors.white, width: 2),
                               left: BorderSide(color: Colors.white, width: 2),
@@ -1111,29 +1251,16 @@ class _HomePageState extends State<HomePage> {
                                   BorderSide(color: Colors.white, width: 2))),
                       child: Center(
                         child: SizedBox(
-                          width: responsive_width / 2.8,
-                          height: responsive_height / 18,
-                          child: ElevatedButton(
-                            onHover: (value) => {},
-                            style: ElevatedButton.styleFrom(
-                              primary: Colors.white.withOpacity(0.3),
-                            ),
-                            onPressed: () {},
-                            child: Center(
-                              child: Text(
-                                "রমজানের পূরনাঙ্গ সময়সূচী",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: responsive_width / 44),
-                              ),
-                            ),
+                          width: 50,
+                          height: 50,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                            backgroundColor: Colors.blue,
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
             )));
   }
 
@@ -1209,17 +1336,20 @@ class _HomePageState extends State<HomePage> {
             .children[8];
         var nais9 = responseString9.text.trim();
         sunset = nais9.split(' ');
-
-        setState(() {
-          if (nais9.length == 0) {
-            loading == true;
-          } else {
+        if (nais9.length == 0) {
+          setState(() {
             loading = true;
-          }
-        });
+          });
+        } else {
+          setState(() {
+            loading = false;
+          });
+        }
       });
     } catch (e) {
-      print('nais');
+      Fluttertoast.showToast(
+          toastLength: Toast.LENGTH_LONG,
+          msg: 'Check your internet connection');
     }
   }
 
@@ -1229,7 +1359,8 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       locationvalue = locationvaluefn;
       selectedvalue = locationvaluefn!;
-      if (locationvaluefn == null) {
+      tempdata = locationvaluefn;
+      if (locationvaluefn == 0) {
         location = 'dhaka';
         DataScraper();
       } else if (locationvaluefn == 1) {
@@ -1264,6 +1395,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   arabicgetdate() async {
+    await Future.delayed(Duration(milliseconds: 50));
+
     try {
       final response = await http.Client()
           .get(Uri.parse('https://isubqo.com/islamic-calendar'));
@@ -1287,7 +1420,9 @@ class _HomePageState extends State<HomePage> {
         }
       });
     } catch (e) {
-      print('');
+      Fluttertoast.showToast(
+          toastLength: Toast.LENGTH_LONG,
+          msg: 'Check your internet connection');
     }
   }
 
@@ -1326,5 +1461,148 @@ class _HomePageState extends State<HomePage> {
         break;
       }
     }
+  }
+
+  showDalogchoice() async {
+    await Future.delayed(Duration(milliseconds: 50));
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) {
+          return WillPopScope(
+              onWillPop: () => Future.value(false),
+              child: Dialog(
+                backgroundColor: Colors.blue,
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width / 5,
+                  height: MediaQuery.of(context).size.height / 8,
+                  child: Center(
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text('নির্বাচন করুন',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize:
+                                      MediaQuery.of(context).size.width / 30)),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.location_on,
+                              color: Colors.white,
+                            ),
+                            DropdownButton(
+                              dropdownColor: Colors.transparent,
+                              icon: const SizedBox.shrink(),
+                              underline: const SizedBox.shrink(),
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize:
+                                      MediaQuery.of(context).size.width / 30),
+                              value: selectedvalue,
+                              // ignore: prefer_const_literals_to_create_immutables
+                              items: [
+                                DropdownMenuItem(
+                                  child: Text("ঢাকা"),
+                                  value: 1,
+                                ),
+                                DropdownMenuItem(
+                                  child: Text("সিলেট"),
+                                  value: 2,
+                                ),
+                                DropdownMenuItem(
+                                  child: Text("রংপুর"),
+                                  value: 3,
+                                ),
+                                DropdownMenuItem(
+                                  child: Text("চট্টগ্রাম"),
+                                  value: 4,
+                                ),
+                                DropdownMenuItem(
+                                  child: Text("বরিশাল"),
+                                  value: 5,
+                                ),
+                                DropdownMenuItem(
+                                  child: Text("খুলনা"),
+                                  value: 6,
+                                ),
+                                DropdownMenuItem(
+                                  child: Text("রাজশাহী"),
+                                  value: 7,
+                                ),
+                                DropdownMenuItem(
+                                  child: Text("ময়মনসিংহ"),
+                                  value: 8,
+                                ),
+                              ],
+                              onChanged: (int? value) async {
+                                SharedPreferences prefer;
+                                prefer = await SharedPreferences.getInstance();
+                                setState(() {
+                                  selectedvalue = value!;
+                                  loading = false;
+                                  prefer.setInt('locationvalue', value);
+                                });
+
+                                showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return Dialog(
+                                        elevation: 0,
+                                        backgroundColor: Colors.blue,
+                                        child: ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                                elevation: 0),
+                                            onPressed: () async {
+                                              await Restart.restartApp();
+                                            },
+                                            child: SizedBox(
+                                              width: MediaQuery.of(context)
+                                                      .size
+                                                      .width /
+                                                  5,
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
+                                                // ignore: prefer_const_literals_to_create_immutables
+                                                children: [
+                                                  Icon(
+                                                    Icons.restart_alt,
+                                                    size: MediaQuery.of(context)
+                                                            .size
+                                                            .width /
+                                                        29,
+                                                  ),
+                                                  Text(
+                                                    'রিস্টার্ট অ্যাপ',
+                                                    style: TextStyle(
+                                                        fontSize: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .width /
+                                                            45),
+                                                  )
+                                                ],
+                                              ),
+                                            )),
+                                      );
+                                    });
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ));
+        });
   }
 }
