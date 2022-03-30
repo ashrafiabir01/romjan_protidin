@@ -14,25 +14,25 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   var date;
-  bool savedata = true;
-  var month;
-  var year;
-  var seheritime = ['00', '00', '00'];
-  var iftertime = ['00', '00', '00'];
-  var fajartime = ['00', '00', '00'];
-  var assartime = ['00', '00', '00'];
-  var johortime = ['00', '00', '00'];
-  var magribtime = ['00', '00', '00'];
-  var eshatime = ['00', '00', '00'];
-  var sunset = ['00', '00', '00'];
-  var sunrise = ['00', '00', '00'];
-  var locationvalue;
-  var nias = ['00', '00', '00'];
-  var arabicmonth = "00";
-  var arabicdatenum = "00";
-  var arabicyear = "00";
-  var _selectedIndex = 0;
-  var location = 'dhaka';
+  late bool savedata = true;
+  late var month;
+  late var year;
+  late var seheritime = ['00', '00', '00'];
+  late var iftertime = ['00', '00', '00'];
+  late var fajartime = ['00', '00', '00'];
+  late var assartime = ['00', '00', '00'];
+  late var johortime = ['00', '00', '00'];
+  late var magribtime = ['00', '00', '00'];
+  late var eshatime = ['00', '00', '00'];
+  late var sunset = ['00', '00', '00'];
+  late var sunrise = ['00', '00', '00'];
+  late var locationvalue;
+  late var nias = ['00', '00', '00'];
+  late var arabicmonth = "00";
+  late var arabicdatenum = "00";
+  late var arabicyear = "00";
+  late var _selectedIndex = 0;
+  late var location = 'dhaka';
   bool closetime = true;
   bool loading = true;
   int selectedvalue = 1;
@@ -42,14 +42,21 @@ class _HomePageState extends State<HomePage> {
   var lefthour, leftmin, leftsec;
   bool doubledigitsec = true;
   bool doubledigitmin = true;
-  bool doubledigitsours = true;
+  late bool doubledigitsours = true;
   late PageController _pageController;
 
   numberTranslator banglanumber = numberTranslator();
   banglamonth banglamonthname = banglamonth();
+  setdatashared() async {
+    var prefer = await SharedPreferences.getInstance();
+    prefer.setInt('locationvalue', 1);
+  }
+
   @override
   void initState() {
     super.initState();
+
+    setdatashared();
     PageController _pageController;
     arabicgetdate();
     getDate();
@@ -1141,75 +1148,87 @@ class _HomePageState extends State<HomePage> {
   }
 
   DataScraper() async {
-    final response = await http.Client().get(Uri.parse(
-      "https://isubqo.com/fasting-time/bangladesh/${location.toString()}",
-    ));
-    var document = parser.parse(response.body);
+    try {
+      final response = await http.Client().get(Uri.parse(
+        "https://isubqo.com/fasting-time/bangladesh/${location.toString()}",
+      ));
+      var document = parser.parse(response.body);
 
-    setState(() {
-      var responseString1 = document
-          .getElementsByClassName("namaz-time-view")[0]
-          .children[0]
-          .children[0];
-      var nais = responseString1.text.trim();
-      seheritime = nais.split(' ');
-      var responseString2 = document
-          .getElementsByClassName("namaz-time-view")[0]
-          .children[0]
-          .children[1];
-      var nais2 = responseString2.text.trim();
-      iftertime = nais2.split(' ');
-      var responseString3 = document
-          .getElementsByClassName("namaz-time-view")[0]
-          .children[0]
-          .children[2];
-      var nais3 = responseString3.text.trim();
-      fajartime = nais3.split(' ');
-      var responseString4 = document
-          .getElementsByClassName("namaz-time-view")[0]
-          .children[0]
-          .children[3];
-      var nais4 = responseString4.text.trim();
-      johortime = nais4.split(' ');
-      var responseString5 = document
-          .getElementsByClassName("namaz-time-view")[0]
-          .children[0]
-          .children[4];
-      var nais5 = responseString5.text.trim();
-      assartime = nais5.split(' ');
-      var responseString6 = document
-          .getElementsByClassName("namaz-time-view")[0]
-          .children[0]
-          .children[5];
-      var nais6 = responseString6.text.trim();
-      magribtime = nais6.split(' ');
-      var responseString7 = document
-          .getElementsByClassName("namaz-time-view")[0]
-          .children[0]
-          .children[6];
-      var nais7 = responseString7.text.trim();
-      eshatime = nais7.split(' ');
-      var responseString8 = document
-          .getElementsByClassName("namaz-time-view")[0]
-          .children[0]
-          .children[7];
-      var nais8 = responseString8.text.trim();
-      sunrise = nais8.split(' ');
-      var responseString9 = document
-          .getElementsByClassName("namaz-time-view")[0]
-          .children[0]
-          .children[8];
-      var nais9 = responseString9.text.trim();
-      sunset = nais9.split(' ');
-    });
+      setState(() {
+        var responseString1 = document
+            .getElementsByClassName("namaz-time-view")[0]
+            .children[0]
+            .children[0];
+        var nais = responseString1.text.trim();
+        seheritime = nais.split(' ');
+        var responseString2 = document
+            .getElementsByClassName("namaz-time-view")[0]
+            .children[0]
+            .children[1];
+        var nais2 = responseString2.text.trim();
+        iftertime = nais2.split(' ');
+        var responseString3 = document
+            .getElementsByClassName("namaz-time-view")[0]
+            .children[0]
+            .children[2];
+        var nais3 = responseString3.text.trim();
+        fajartime = nais3.split(' ');
+        var responseString4 = document
+            .getElementsByClassName("namaz-time-view")[0]
+            .children[0]
+            .children[3];
+        var nais4 = responseString4.text.trim();
+        johortime = nais4.split(' ');
+        var responseString5 = document
+            .getElementsByClassName("namaz-time-view")[0]
+            .children[0]
+            .children[4];
+        var nais5 = responseString5.text.trim();
+        assartime = nais5.split(' ');
+        var responseString6 = document
+            .getElementsByClassName("namaz-time-view")[0]
+            .children[0]
+            .children[5];
+        var nais6 = responseString6.text.trim();
+        magribtime = nais6.split(' ');
+        var responseString7 = document
+            .getElementsByClassName("namaz-time-view")[0]
+            .children[0]
+            .children[6];
+        var nais7 = responseString7.text.trim();
+        eshatime = nais7.split(' ');
+        var responseString8 = document
+            .getElementsByClassName("namaz-time-view")[0]
+            .children[0]
+            .children[7];
+        var nais8 = responseString8.text.trim();
+        sunrise = nais8.split(' ');
+        var responseString9 = document
+            .getElementsByClassName("namaz-time-view")[0]
+            .children[0]
+            .children[8];
+        var nais9 = responseString9.text.trim();
+        sunset = nais9.split(' ');
+
+        setState(() {
+          if (nais9.length == 0) {
+            loading == true;
+          } else {
+            loading = true;
+          }
+        });
+      });
+    } catch (e) {
+      print('nais');
+    }
   }
 
   checkexitdata() async {
     var prefer = await SharedPreferences.getInstance();
+    var locationvaluefn = prefer.getInt('locationvalue');
     setState(() {
-      var locationvaluefn = prefer.getInt('locationvalue')!;
       locationvalue = locationvaluefn;
-      selectedvalue = locationvaluefn;
+      selectedvalue = locationvaluefn!;
       if (locationvaluefn == null) {
         location = 'dhaka';
         DataScraper();
@@ -1245,27 +1264,31 @@ class _HomePageState extends State<HomePage> {
   }
 
   arabicgetdate() async {
-    final response = await http.Client()
-        .get(Uri.parse('https://isubqo.com/islamic-calendar'));
-    var document = parser.parse(response.body);
-    setState(() {
-      var responsedata = document.getElementsByClassName('text-right')[0];
-      var arabidatedata = responsedata.text.trim().split('.');
-      arabicmonth = arabidatedata[1];
-      arabicyear = arabidatedata[2];
-      var splitdatetry = arabidatedata[0].split(':');
-      arabicdatenum = splitdatetry[1];
+    try {
+      final response = await http.Client()
+          .get(Uri.parse('https://isubqo.com/islamic-calendar'));
+      var document = parser.parse(response.body);
+      setState(() {
+        var responsedata = document.getElementsByClassName('text-right')[0];
+        var arabidatedata = responsedata.text.trim().split('.');
+        arabicmonth = arabidatedata[1];
+        arabicyear = arabidatedata[2];
+        var splitdatetry = arabidatedata[0].split(':');
+        arabicdatenum = splitdatetry[1];
 
-      if (arabicmonth == " Sha'ban") {
-        arabicmonth = ' শা’বান';
-      } else if (arabicmonth == " Ramadan") {
-        arabicmonth = 'রামাজান';
-      } else if (arabicmonth == " Shawwal") {
-        arabicmonth = 'শাওয়াল';
-      } else {
-        arabicmonth = arabicmonth;
-      }
-    });
+        if (arabicmonth == " Sha'ban") {
+          arabicmonth = ' শা’বান';
+        } else if (arabicmonth == " Ramadan") {
+          arabicmonth = 'রামাজান';
+        } else if (arabicmonth == " Shawwal") {
+          arabicmonth = 'শাওয়াল';
+        } else {
+          arabicmonth = arabicmonth;
+        }
+      });
+    } catch (e) {
+      print('');
+    }
   }
 
   Customcountdown() async {
