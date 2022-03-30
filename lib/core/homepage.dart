@@ -25,6 +25,9 @@ class _HomePageState extends State<HomePage> {
   late var fajartime = ['00', '00', '00'];
   late var assartime = ['00', '00', '00'];
   int value = 0;
+  bool itsehertime = true;
+  var tempcheck;
+  var dt = DateTime.now();
   late var johortime = ['00', '00', '00'];
   late var magribtime = ['00', '00', '00'];
   late var eshatime = ['00', '00', '00'];
@@ -41,9 +44,9 @@ class _HomePageState extends State<HomePage> {
   bool loading = true;
   int selectedvalue = 1;
   var tempdata = 0;
-  var iftertimehours = DateTime.now().second;
-  var iftertimemin = DateTime.now().minute;
-  var iftertimesec = 60 - DateTime.now().second;
+  var iftertimehours = 4;
+  var iftertimemin = 06;
+  var iftertimesec = 60;
   var lefthour, leftmin, leftsec;
   bool doubledigitsec = true;
   bool doubledigitmin = true;
@@ -59,7 +62,7 @@ class _HomePageState extends State<HomePage> {
     arabicgetdate();
     getDate();
     checkexitdata();
-    Customcountdown();
+    customcountdown();
     Timer(Duration(seconds: 2), () {
       if (tempdata == 0) {
         showDalogchoice();
@@ -376,16 +379,16 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                     Expanded(
                                         flex: 1,
-                                        child: closetime
+                                        child: itsehertime
                                             ? Text(
-                                                'ইফাতারের সময় হতে বাকি আছে-\n\n\n',
+                                                'সেহরির সময় বাকি আছে ${tempcheck.toString()}-\n\n\n',
                                                 style: TextStyle(
                                                     color: Colors.white,
                                                     fontSize:
                                                         responsive_width / 43),
                                               )
                                             : Text(
-                                                'সেহরির সময় বাকি আছে-',
+                                                'ইফাতারের সময় বাকি আছে -',
                                                 style: TextStyle(
                                                     color: Colors.white,
                                                     fontSize:
@@ -1288,12 +1291,70 @@ class _HomePageState extends State<HomePage> {
             .children[0];
         var nais = responseString1.text.trim();
         seheritime = nais.split(' ');
+
         var responseString2 = document
             .getElementsByClassName("namaz-time-view")[0]
             .children[0]
             .children[1];
         var nais2 = responseString2.text.trim();
         iftertime = nais2.split(' ');
+        var seheritimeinthour = seheritime[1].split(':')[0];
+        var seheritimeinthour1 = seheritime[1].split(':')[1];
+        var seheritimeinthour3 = seheritime[1].split(':')[0];
+        var seheritimeinthour4 = seheritime[1].split(':')[1];
+        var iftertimehour = iftertime[1].split(':')[0];
+        var iftertimehour1 = iftertime[1].split(':')[1];
+        var leftiftertimetemp = (int.parse(iftertimehour) + 12) * 3600 +
+            int.parse(iftertimehour1) * 60;
+        var leftseheritimetemp = (int.parse(seheritimeinthour)) * 3600 +
+            int.parse(seheritimeinthour1) * 60;
+        var leftseheritimetemp2 = (int.parse(seheritimeinthour3) + 12) * 3600 +
+            int.parse(seheritimeinthour4) * 60;
+        var nowtimesec =
+            DateTime.now().hour * 3600 + DateTime.now().minute * 60;
+
+        var value = leftseheritimetemp - nowtimesec;
+        var value2 = leftiftertimetemp - nowtimesec;
+        var value3 = leftseheritimetemp2 - nowtimesec;
+        int h, m, se;
+        int h2, m2, se2;
+        int h3, m3, se3;
+        h = value ~/ 3600;
+
+        m = ((value - h * 3600)) ~/ 60;
+
+        se = value - (h * 3600) - (m * 60);
+
+        h2 = value2 ~/ 3600;
+
+        m2 = ((value2 - h2 * 3600)) ~/ 60;
+
+        se2 = value2 - (h2 * 3600) - (m2 * 60);
+
+        h3 = value3 ~/ 3600;
+
+        m3 = ((value3 - h3 * 3600)) ~/ 60;
+
+        se3 = value3 - (h3 * 3600) - (m3 * 60);
+
+        setState(() {
+          if (h == 0 && m == 0) {
+            itsehertime = false;
+
+            iftertimehours = h2;
+            iftertimemin = m2;
+            iftertimesec = se2;
+          } else if (h2 == 0 && m2 == 0) {
+            itsehertime = true;
+            iftertimehours = h;
+            iftertimemin = m;
+            iftertimesec = se;
+          } else {
+            iftertimehours = h3;
+            iftertimemin = m3;
+            iftertimesec = se3;
+          }
+        });
         var responseString3 = document
             .getElementsByClassName("namaz-time-view")[0]
             .children[0]
@@ -1426,7 +1487,9 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Customcountdown() async {
+  customcountdown() async {
+    setState(() {});
+
     for (int i = iftertimesec; i >= 0; i--) {
       setState(() {
         doubledigitmin = false;
@@ -1475,7 +1538,7 @@ class _HomePageState extends State<HomePage> {
                 backgroundColor: Colors.blue,
                 child: SizedBox(
                   width: MediaQuery.of(context).size.width / 5,
-                  height: MediaQuery.of(context).size.height / 8,
+                  height: MediaQuery.of(context).size.height / 7,
                   child: Center(
                     child: Column(
                       children: [
