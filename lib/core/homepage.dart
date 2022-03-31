@@ -36,6 +36,7 @@ class _HomePageState extends State<HomePage> {
   late var locationvalue;
   late var nias = ['00', '00', '00'];
   late var arabicmonth = "00";
+  int tempvalue2 = 1;
   late var arabicdatenum = "00";
   late var arabicyear = "00";
   late var location = 'dhaka';
@@ -381,7 +382,7 @@ class _HomePageState extends State<HomePage> {
                                         flex: 1,
                                         child: itsehertime
                                             ? Text(
-                                                'সেহরির সময় বাকি আছে ${tempcheck.toString()}-\n\n\n',
+                                                'সেহরির সময় বাকি আছে -\n\n\n',
                                                 style: TextStyle(
                                                     color: Colors.white,
                                                     fontSize:
@@ -1340,19 +1341,30 @@ class _HomePageState extends State<HomePage> {
         setState(() {
           if (h == 0 && m == 0) {
             itsehertime = false;
-
             iftertimehours = h2;
             iftertimemin = m2;
+
             iftertimesec = se2;
-          } else if (h2 == 0 && m2 == 0) {
+          } else if (DateTime.now().hour >= 19 && DateTime.now().hour <= 24) {
+            itsehertime = true;
+            iftertimehours = h3 + 12;
+            iftertimemin = m3 + 60;
+            iftertimesec = se3;
+          } else if (h2 == 0 &&
+              m2 == 0 &&
+              DateTime.now().hour >= 0 &&
+              DateTime.now().hour <= 5) {
             itsehertime = true;
             iftertimehours = h;
             iftertimemin = m;
+            tempvalue2 = 0;
             iftertimesec = se;
           } else {
-            iftertimehours = h3;
-            iftertimemin = m3;
-            iftertimesec = se3;
+            itsehertime = false;
+            iftertimehours = h2;
+            iftertimemin = m2;
+
+            iftertimesec = se2;
           }
         });
         var responseString3 = document
